@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace UnIdy.Utils
+namespace MyPlugin.Utils
 {
     internal class Keyboard
     {

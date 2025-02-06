@@ -1,4 +1,4 @@
-﻿namespace UnIdy
+﻿namespace MyPlugin
 {
     public class Constants
     {

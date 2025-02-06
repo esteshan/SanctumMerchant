@@ -1,10 +1,10 @@
-﻿using System;
-using System.Drawing;
-using System.Numerics; // Use System.Numerics.Vector2
+﻿using System.Drawing;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
+// Use System.Numerics.Vector2
 
-namespace UnIdy.Utils
+namespace MyPlugin.Utils
 {
     internal class Mouse
     {

@@ -14,10 +14,7 @@ namespace SanctumRewards;
 public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
 {
     private Vector2 _scrollOffset = Vector2.Zero;
-
-    private List<(string Name, string Cost, Vector2 Position, string Visibility, string CanBuy, string Warning)>
-        _rewardDetails = new();
-
+    private List<(string Name, string Cost, Vector2 Position, string Visibility, string CanBuy, string Warning)> _rewardDetails = new();
     private int _currencyAmount = 0;
     private Element _downArrow;
     private Element _upArrow;
@@ -39,19 +36,19 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
 
             // Locate buttons
             _downArrow = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(2)?
-                .Children.ElementAtOrDefault(1);
+                                                 .Children.ElementAtOrDefault(1)?
+                                                 .Children.ElementAtOrDefault(0)?
+                                                 .Children.ElementAtOrDefault(2)?
+                                                 .Children.ElementAtOrDefault(1);
 
             _upArrow = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(2)?
-                .Children.ElementAtOrDefault(0);
+                                               .Children.ElementAtOrDefault(1)?
+                                               .Children.ElementAtOrDefault(0)?
+                                               .Children.ElementAtOrDefault(2)?
+                                               .Children.ElementAtOrDefault(0);
 
             _purchaseButton = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(2);
+                                                       .Children.ElementAtOrDefault(2);
 
             _closeButton = sanctumRewardWindow.Children.ElementAtOrDefault(3);
 
@@ -63,90 +60,103 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
         }
     }
 
-    private void UpdateRewardElements(Element sanctumRewardWindow)
+   private void UpdateRewardElements(Element sanctumRewardWindow)
+{
+    _rewardDetails.Clear();
+    
+    var scrollElement = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
+                                                 .Children.ElementAtOrDefault(1)?
+                                                 .Children.ElementAtOrDefault(0);
+
+    if (scrollElement != null)
     {
-        _rewardDetails.Clear();
-
-        var scrollElement = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
-            .Children.ElementAtOrDefault(1)?
-            .Children.ElementAtOrDefault(0);
-
-        if (scrollElement != null)
-        {
-            _scrollOffset = scrollElement.ScrollOffset;
-        }
-
-        var currencyElement = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
-            .Children.ElementAtOrDefault(0)?
-            .Children.ElementAtOrDefault(0)?
-            .Children.ElementAtOrDefault(1);
-
-        // ✅ Fix: Remove commas before parsing
-        string currencyText = currencyElement?.Text?.Replace(",", "").Trim();
-        _currencyAmount = int.TryParse(currencyText, out int parsedCurrency) ? parsedCurrency : 0;
-
-        for (int i = 0; i < 15; i++) // Assuming max 15 elements
-        {
-            var rewardTextElement = scrollElement?.Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(i)?
-                .Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(0);
-
-            string rewardName = rewardTextElement?.Text ?? "No Text";
-
-            var rewardCostElement = scrollElement?.Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(i)?
-                .Children.ElementAtOrDefault(2)?
-                .Children.ElementAtOrDefault(0)?
-                .Children.ElementAtOrDefault(1);
-
-            string rewardCostText = rewardCostElement?.Text?.Replace(",", "").Trim() ?? "Unknown";
-            int rewardCost = int.TryParse(rewardCostText, out int parsedCost) ? parsedCost : int.MaxValue;
-
-            var rewardItemWindow = scrollElement?.Children.ElementAtOrDefault(1)?
-                .Children.ElementAtOrDefault(i)?
-                .Children.ElementAtOrDefault(1);
-
-            Vector2 itemPosition = Vector2.Zero;
-            string visibility = "NOT VISIBLE";
-            if (rewardItemWindow != null)
-            {
-                var itemRect = rewardItemWindow.GetClientRectCache;
-                itemPosition = new Vector2(itemRect.Center.X, itemRect.Center.Y);
-
-                if (itemPosition.Y >= 423 && itemPosition.Y <= 1419)
-                {
-                    visibility = "VISIBLE";
-                }
-            }
-
-            string canBuy = (rewardCost <= _currencyAmount) ? "CAN BUY" : "CANNOT BUY";
-
-            // If it's a relic, mark it as "DO NOT BUY"
-            string warning = rewardName.Contains("Relic") ? "DO NOT BUY" : "";
-
-            _rewardDetails.Add((rewardName, rewardCostText, itemPosition, visibility, canBuy, warning));
-        }
+        _scrollOffset = scrollElement.ScrollOffset;
     }
+
+    var currencyElement = sanctumRewardWindow.Children.ElementAtOrDefault(0)?
+                                                 .Children.ElementAtOrDefault(0)?
+                                                 .Children.ElementAtOrDefault(0)?
+                                                 .Children.ElementAtOrDefault(1);
+
+    // ✅ Fix: Remove commas before parsing
+    string currencyText = currencyElement?.Text?.Replace(",", "").Trim();
+    _currencyAmount = int.TryParse(currencyText, out int parsedCurrency) ? parsedCurrency : 0;
+
+    for (int i = 0; i < 15; i++) // Assuming max 15 elements
+    {
+        var rewardTextElement = scrollElement?.Children.ElementAtOrDefault(1)?
+                                                   .Children.ElementAtOrDefault(i)?
+                                                   .Children.ElementAtOrDefault(1)?
+                                                   .Children.ElementAtOrDefault(0)?
+                                                   .Children.ElementAtOrDefault(0);
+
+        string rewardName = rewardTextElement?.Text ?? "No Text";
+
+        var rewardCostElement = scrollElement?.Children.ElementAtOrDefault(1)?
+                                                   .Children.ElementAtOrDefault(i)?
+                                                   .Children.ElementAtOrDefault(2)?
+                                                   .Children.ElementAtOrDefault(0)?
+                                                   .Children.ElementAtOrDefault(1);
+
+        string rewardCostText = rewardCostElement?.Text?.Replace(",", "").Trim() ?? "Unknown";
+        int rewardCost = int.TryParse(rewardCostText, out int parsedCost) ? parsedCost : int.MaxValue;
+
+        var rewardItemWindow = scrollElement?.Children.ElementAtOrDefault(1)?
+                                                     .Children.ElementAtOrDefault(i)?
+                                                     .Children.ElementAtOrDefault(1);
+
+        Vector2 itemPosition = Vector2.Zero;
+        string visibility = "NOT VISIBLE";
+        if (rewardItemWindow != null)
+        {
+            var itemRect = rewardItemWindow.GetClientRectCache;
+            itemPosition = new Vector2(itemRect.Center.X, itemRect.Center.Y);
+
+            if (itemPosition.Y >= 423 && itemPosition.Y <= 1419)
+            {
+                visibility = "VISIBLE";
+            }
+        }
+
+        string canBuy = (rewardCost <= _currencyAmount) ? "CAN BUY" : "CANNOT BUY";
+
+        // If it's a relic, mark it as "DO NOT BUY"
+        string warning = "";
+        if (rewardName.Contains("Relic"))
+        {
+            warning = "DO NOT BUY";
+        }
+
+        // ❌ If it's "Restore 289 Honour", also mark as "DO NOT BUY"
+        if (rewardName.Contains("Restore 289 Honour"))
+        {
+            warning = "DO NOT BUY";
+        }
+        
+        if (rewardName.Contains("Boon: Glowing Orb"))
+        {
+            warning = "DO NOT BUY";
+        }
+        _rewardDetails.Add((rewardName, rewardCostText, itemPosition, visibility, canBuy, warning));
+    }
+}
 
     private void BuyBoon(Element sanctumRewardWindow)
     {
-        while (Keyboard.IsKeyDown(Keys.F5)) // Stop if F5 is released
+        while (Keyboard.IsKeyDown(Keys.F5))  // Stop if F5 is released
         {
             // Refresh RewardElements dynamically after every buy
             UpdateRewardElements(sanctumRewardWindow);
 
-            var buyableBoon = _rewardDetails.FirstOrDefault(x =>
-                x.Name.Contains("Boon") && x.Visibility == "VISIBLE" && x.CanBuy == "CAN BUY");
+            var buyableBoon = _rewardDetails.FirstOrDefault(x => x.Name.Contains("Boon") && x.Visibility == "VISIBLE" && x.CanBuy == "CAN BUY");
 
             if (buyableBoon.Name != null)
             {
-                Mouse.SetCursorPosAndLeftClick(buyableBoon.Position, 50, Vector2.Zero);
-                System.Threading.Thread.Sleep(100);
-                Mouse.SetCursorPosAndLeftClick(_purchaseButton.GetClientRectCache.Center, 50, Vector2.Zero);
-                System.Threading.Thread.Sleep(1000);
-                continue; // Continue only if F5 is still held
+                Mouse.SetCursorPosAndLeftClick(buyableBoon.Position, 1500, Vector2.Zero);
+                System.Threading.Thread.Sleep(0);
+                Mouse.SetCursorPosAndLeftClick(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
+                System.Threading.Thread.Sleep(0); 
+                continue;  // Continue only if F5 is still held
             }
 
             bool anyBuyableBoon = _rewardDetails.Any(x => x.Name.Contains("Boon") && x.CanBuy == "CAN BUY");
@@ -154,18 +164,18 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
             if (anyBuyableBoon && _downArrow != null)
             {
                 Mouse.SetCursorPosAndLeftClick(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                System.Threading.Thread.Sleep(300);
-                continue; // Continue scrolling as long as F5 is held
+                System.Threading.Thread.Sleep(0);
+                continue;  // Continue scrolling as long as F5 is held
             }
 
-            break; // Stop buying if no more buyable boons
+            break;  // Stop buying if no more buyable boons
         }
     }
 
     public override void Render()
     {
         if (!Settings.Debug.Value) return;
-
+        
         int yOffset = 180;
 
         // Draw Currency Amount on screen
@@ -183,7 +193,7 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
             Color buyColor = canBuy == "CAN BUY" ? Color.Green : Color.Red;
             Color warningColor = Color.Red;
 
-            Graphics.DrawText($"Reward: {name} - Cost: {cost} - Pos: {position} - {visibility} - {canBuy}",
+            Graphics.DrawText($"Reward: {name} - Cost: {cost} - Pos: {position} - {visibility} - {canBuy}", 
                 new Vector2(100, yOffset), textColor);
 
             if (!string.IsNullOrEmpty(warning))

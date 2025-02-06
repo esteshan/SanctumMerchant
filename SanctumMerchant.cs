@@ -120,53 +120,75 @@ namespace SanctumMerchant
                 _rewardDetails.Add((rewardName, rewardCostText, itemPosition, visibility, canBuy, ""));
             }
         }
+        
+        private string _stopReason = ""; // Holds the reason why the plugin stopped
 
         private void BuyBoon(Element sanctumRewardWindow)
+       {
+    _stopReason = ""; // Reset stop reason before starting
+
+    while (Keyboard.IsKeyDown(Keys.F5)) // Stop if F5 is released
+    {
+        // Refresh RewardElements dynamically after every buy
+        UpdateRewardElements(sanctumRewardWindow);
+
+        bool boughtSomething = false;
+
+        foreach (var priority in _jsonLoader.SanctumEffects)
         {
-            while (Keyboard.IsKeyDown(Keys.F5)) // Stop if F5 is released
+            foreach (var effect in priority.Effects)
             {
-                // Refresh RewardElements dynamically after every buy
-                UpdateRewardElements(sanctumRewardWindow);
-
-                bool boughtSomething = false;
-
-                foreach (var priority in _jsonLoader.SanctumEffects)
-                {
-                    foreach (var effect in priority.Effects)
-                    {
-                        var matchingBoon = _rewardDetails.FirstOrDefault(x =>
-                            x.Name.Equals($"Boon: {effect.EffectName}", StringComparison.OrdinalIgnoreCase) &&
-                            x.Visibility == "VISIBLE" && 
-                            x.CanBuy == "CAN BUY");
-
-                        if (matchingBoon.Name != null)
-                        {
-                            Mouse.SetCursorPosAndLeftClick(matchingBoon.Position, 1500, Vector2.Zero);
-                            Mouse.SetCursorPosAndLeftClick(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
-                            boughtSomething = true;
-                            break; // Stop checking once an item is bought
-                        }
-                    }
-
-                    if (boughtSomething)
-                        break; // Move out of priority loop if an item was bought
-                }
-
-                // If nothing from the JSON was bought, try scrolling for more options
-                bool anyBuyableBoon = _rewardDetails.Any(x =>
-                    _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
-                    .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
+                var matchingBoon = _rewardDetails.FirstOrDefault(x =>
+                    x.Name.Equals($"Boon: {effect.EffectName}", StringComparison.OrdinalIgnoreCase) &&
+                    x.Visibility == "VISIBLE" && 
                     x.CanBuy == "CAN BUY");
 
-                if (anyBuyableBoon && _downArrow != null)
+                if (matchingBoon.Name != null)
                 {
-                    Mouse.SetCursorPosAndLeftClick(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                    continue; // Continue scrolling as long as F5 is held
+                    Mouse.SetCursorPosAndLeftClick(matchingBoon.Position, 1500, Vector2.Zero);
+                    Mouse.SetCursorPosAndLeftClick(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
+                    boughtSomething = true;
+                    _stopReason = "Buying in Progress..."; // Keep resetting if still purchasing
+                    break; // Stop checking once an item is bought
                 }
-
-                break; // Stop buying if no more buyable boons
             }
+
+            if (boughtSomething)
+                break; // Move out of priority loop if an item was bought
         }
+
+        // If nothing from the JSON was bought, check why and set a stop message
+        if (!boughtSomething)
+        {
+            bool anyBuyableBoon = _rewardDetails.Any(x =>
+                _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
+                .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
+                x.CanBuy == "CAN BUY");
+
+            if (anyBuyableBoon && _downArrow != null)
+            {
+                Mouse.SetCursorPosAndLeftClick(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+                System.Threading.Thread.Sleep(300);
+                continue; // Continue scrolling as long as F5 is held
+            }
+
+            if (!anyBuyableBoon)
+            {
+                _stopReason = "No Boons Available to Buy!";
+            }
+            else if (_currencyAmount == 0)
+            {
+                _stopReason = "Not Enough Currency!";
+            }
+            else
+            {
+                _stopReason = "Finished Buying!";
+            }
+
+            break; // Stop buying if no more buyable boons
+        }
+    }
+       }
 
         public override void Render()
         {
@@ -205,8 +227,13 @@ namespace SanctumMerchant
                     Graphics.DrawText($"  - {effect.EffectName}", new Vector2(120, yOffset), Color.White);
                     yOffset += 20;
                 }
+
                 yOffset += 10;
             }
+
+            // Draw Stop Reason Below Everything
+            yOffset += 30;
+            Graphics.DrawText($"Status: {_stopReason}", new Vector2(100, yOffset), Color.Red);
         }
     }
 }

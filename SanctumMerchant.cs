@@ -1,17 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using ExileCore2;
 using ExileCore2.PoEMemory;
-using MyPlugin.Helper;
+using SanctumMerchant.Helper;
 using MyPlugin.Utils;
-// Using UnIdy.Utils for Mouse & Keyboard control
 using Vector2 = System.Numerics.Vector2;
 
-namespace MyPlugin;
 
-public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
+namespace SanctumMerchant;
+
+public class SanctumMerchant : BaseSettingsPlugin<SanctumRewardsSettings>
 {
     private Vector2 _scrollOffset = Vector2.Zero;
     private List<(string Name, string Cost, Vector2 Position, string Visibility, string CanBuy, string Warning)> _rewardDetails = new();
@@ -20,9 +22,16 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
     private Element _upArrow;
     private Element _purchaseButton;
     private Element _closeButton;
+    private readonly JsonLoader _jsonLoader;
+    
+    public SanctumMerchant()
+    {
+        _jsonLoader = new JsonLoader(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "Source", "SanctumMerchant", "Json", "HelloWorld.json"));
+    }
 
     public override bool Initialise()
-    {
+    {   
+        _jsonLoader.LoadJson();
         return true;
     }
 
@@ -163,33 +172,47 @@ public class MyPlugin : BaseSettingsPlugin<SanctumRewardsSettings>
     public override void Render()
     {
         if (!Settings.Debug.Value) return;
-        
+
         int yOffset = 180;
 
-        // Draw Currency Amount on screen
+        // Draw Currency Amount
         Graphics.DrawText($"Currency: {_currencyAmount}", new Vector2(100, yOffset), Color.Cyan);
         yOffset += 20;
 
-        // Draw Scroll Offset on screen
+        // Draw Scroll Offset
         Graphics.DrawText($"Scroll Offset: {_scrollOffset}", new Vector2(100, yOffset), Color.Yellow);
         yOffset += 20;
 
-        // Draw each reward item with visibility and cost
+        // Draw Reward List
         foreach (var (name, cost, position, visibility, canBuy, warning) in _rewardDetails)
         {
             Color textColor = visibility == "VISIBLE" ? Color.Lime : Color.Red;
-            Color buyColor = canBuy == "CAN BUY" ? Color.Green : Color.Red;
-            Color warningColor = Color.Red;
-
-            Graphics.DrawText($"Reward: {name} - Cost: {cost} - Pos: {position} - {visibility} - {canBuy}", 
-                new Vector2(100, yOffset), textColor);
+            Graphics.DrawText($"Reward: {name} - Cost: {cost} - {visibility} - {canBuy}", new Vector2(100, yOffset), textColor);
 
             if (!string.IsNullOrEmpty(warning))
             {
-                Graphics.DrawText($"  {warning}", new Vector2(500, yOffset), warningColor); // Draw "DO NOT BUY" in red
+                Graphics.DrawText($"  {warning}", new Vector2(500, yOffset), Color.Red);
             }
 
             yOffset += 20;
+        }
+
+        // Draw JSON Priority Data **Below Other Debug Info**
+        yOffset += 30;
+        Graphics.DrawText("Sanctum Priority Effects:", new Vector2(100, yOffset), Color.Orange);
+        yOffset += 20;
+
+        foreach (var priority in _jsonLoader.SanctumEffects)
+        {
+            Graphics.DrawText($"{priority.MenuName}:", new Vector2(100, yOffset), Color.Yellow);
+            yOffset += 20;
+
+            foreach (var effect in priority.Effects)
+            {
+                Graphics.DrawText($"  - {effect.EffectName}", new Vector2(120, yOffset), Color.White);
+                yOffset += 20;
+            }
+            yOffset += 10;
         }
     }
 }

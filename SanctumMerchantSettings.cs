@@ -2,7 +2,7 @@
 using ExileCore2.Shared.Interfaces;
 using ExileCore2.Shared.Nodes;
 
-namespace MyPlugin;
+namespace SanctumMerchant;
 
 public class SanctumRewardsSettings : ISettings
 {

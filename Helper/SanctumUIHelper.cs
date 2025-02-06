@@ -1,7 +1,7 @@
 using System.Linq;
 using ExileCore2.PoEMemory;
 
-namespace MyPlugin.Helper
+namespace SanctumMerchant.Helper
 {
     public static class SanctumUiHelper
     {

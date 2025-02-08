@@ -12,15 +12,17 @@ namespace MyPlugin.Utils
         private const int KEY_PRESSED = 0x8000;
         private const int KEY_TOGGLED = 0x0001;
 
+        private const int CLICK_DELAY = 10; // ✅ Define constant directly to avoid dependency
+
         [DllImport("user32.dll")]
-        private static extern uint keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+        private static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
         [DllImport("user32.dll")]
         private static extern short GetKeyState(int nVirtKey);
 
         public static void KeyDown(Keys key)
         {
-            keybd_event((byte)key, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
+            keybd_event((byte)key, 0, KEYEVENTF_EXTENDEDKEY, 0);
         }
 
         public static void KeyUp(Keys key)
@@ -28,26 +30,26 @@ namespace MyPlugin.Utils
             keybd_event((byte)key, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
         }
 
-        public static async Task KeyPressAsync(Keys key)
+        public static async Task KeyPressAsync(Keys key, int delay = CLICK_DELAY)
         {
             KeyDown(key);
-            await Task.Delay(Constants.CLICK_DELAY);
+            await Task.Delay(delay); // ✅ Allows custom delay for better control
             KeyUp(key);
         }
 
         public static bool IsKeyDown(Keys key)
         {
-            return GetKeyState((int)key) < 0;
+            return (GetKeyState((int)key) & KEY_PRESSED) != 0;
         }
 
         public static bool IsKeyPressed(Keys key)
         {
-            return Convert.ToBoolean(GetKeyState((int)key) & KEY_PRESSED);
+            return (GetKeyState((int)key) & KEY_PRESSED) != 0;
         }
 
         public static bool IsKeyToggled(Keys key)
         {
-            return Convert.ToBoolean(GetKeyState((int)key) & KEY_TOGGLED);
+            return (GetKeyState((int)key) & KEY_TOGGLED) != 0;
         }
     }
 }

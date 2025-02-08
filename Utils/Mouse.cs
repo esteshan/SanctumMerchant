@@ -23,18 +23,24 @@ namespace MyPlugin.Utils
         public const int MOUSEEVENTF_RIGHTUP = 0x0010;
         public const int MOUSE_EVENT_WHEEL = 0x800;
 
-        private const int MOVEMENT_DELAY = 10;
+        private const int MOVEMENT_DELAY = 5;  // ✅ Reduced delay for faster movement
         private const int CLICK_DELAY = 1;
 
-        public static bool SetCursorPos(int x, int y, RectangleF gameWindow)
+        public static async Task<bool> SetCursorPosAsync(int x, int y, RectangleF gameWindow)
         {
-            return SetCursorPos(x + (int)gameWindow.X, y + (int)gameWindow.Y);
+            bool result = SetCursorPos(x + (int)gameWindow.X, y + (int)gameWindow.Y);
+            await Task.Delay(1); // ✅ Prevents UI lag
+            return result;
         }
 
-        public static bool SetCursorPosToCenterOfRec(RectangleF position, RectangleF gameWindow)
+        public static async Task<bool> SetCursorPosToCenterOfRecAsync(RectangleF position, RectangleF gameWindow)
         {
-            return SetCursorPos((int)(gameWindow.X + position.X + position.Width / 2),
-                                (int)(gameWindow.Y + position.Y + position.Height / 2));
+            bool result = SetCursorPos(
+                (int)(gameWindow.X + position.X + position.Width / 2),
+                (int)(gameWindow.Y + position.Y + position.Height / 2)
+            );
+            await Task.Delay(1); // ✅ Prevents UI lag
+            return result;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -58,55 +64,30 @@ namespace MyPlugin.Utils
             return lpPoint;
         }
 
-        public static void LeftMouseDown()
-        {
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-        }
-
-        public static void LeftMouseUp()
-        {
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-        }
-
-        public static void RightMouseDown()
-        {
-            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
-        }
-
-        public static void RightMouseUp()
-        {
-            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
-        }
+        public static void LeftMouseDown() => mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        public static void LeftMouseUp() => mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        public static void RightMouseDown() => mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+        public static void RightMouseUp() => mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
 
         public static async Task SetCursorPosAndLeftClickAsync(Vector2 pos, int extraDelay, Vector2 offset)
         {
-            var posX = (int)(pos.X + offset.X);
-            var posY = (int)(pos.Y + offset.Y);
-            SetCursorPos(posX, posY);
+            await SetCursorPosAsync((int)(pos.X + offset.X), (int)(pos.Y + offset.Y), new RectangleF());
             await Task.Delay(MOVEMENT_DELAY + extraDelay);
             await LeftClickAsync();
         }
 
         public static async Task SetCursorPosAndRightClickAsync(Vector2 pos, int extraDelay, Vector2 offset)
         {
-            var posX = (int)(pos.X + offset.X);
-            var posY = (int)(pos.Y + offset.Y);
-            SetCursorPos(posX, posY);
+            await SetCursorPosAsync((int)(pos.X + offset.X), (int)(pos.Y + offset.Y), new RectangleF());
             await Task.Delay(MOVEMENT_DELAY + extraDelay);
             await RightClickAsync();
         }
 
         public static async Task VerticalScrollAsync(bool forward, int clicks)
         {
-            if (forward)
-            {
-                mouse_event(MOUSE_EVENT_WHEEL, 0, 0, clicks * 120, 0);
-            }
-            else
-            {
-                mouse_event(MOUSE_EVENT_WHEEL, 0, 0, -(clicks * 120), 0);
-            }
-            await Task.Delay(50); // Small delay for responsiveness
+            int scrollAmount = clicks * 120;
+            mouse_event(MOUSE_EVENT_WHEEL, 0, 0, forward ? scrollAmount : -scrollAmount, 0);
+            await Task.Delay(10); // ✅ Reduced delay for faster responsiveness
         }
 
         public static async Task LeftClickAsync()
@@ -124,4 +105,3 @@ namespace MyPlugin.Utils
         }
     }
 }
-

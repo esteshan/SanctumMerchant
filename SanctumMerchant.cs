@@ -54,12 +54,7 @@ namespace SanctumMerchant
                 {
                     _ = BuyBoonAsync();
                 }
-
-                // ✅ Press F6 to test scroll down button
-                if (Keyboard.IsKeyDown(Keys.F6))
-                {
-                    _ = ScrollDownTestAsync();
-                }
+               
             }
         }
 
@@ -185,18 +180,6 @@ namespace SanctumMerchant
             _stopReason = !_rewardDetails.Any(x => x.CanBuy == "CAN BUY") ? "No Boons Available to Buy!" : "Finished Buying!";
         }
 
-        private async Task ScrollDownTestAsync()
-        {
-            if (_downArrow != null)
-            {
-                DebugWindow.LogMsg("[SanctumMerchant] F6 Pressed - Clicking Scroll Down Button.");
-                await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-            }
-            else
-            {
-                DebugWindow.LogMsg("[SanctumMerchant] No Scroll Down Button Found!");
-            }
-        }
 
         public override void Render()
         {

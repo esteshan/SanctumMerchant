@@ -131,43 +131,51 @@ namespace SanctumMerchant
 
     while (Keyboard.IsKeyDown(Settings.PurchaseKey.Value))
     {
-        // 🛑 Step 1: Search for "Boon: Silver Tongue" and buy it
-        for (int attempt = 0; attempt < 3; attempt++) // Allow up to 10 scrolls
+        UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
+
+        // Step 1: Check if "Boon: Silver Tongue" exists anywhere in _rewardDetails
+        bool silverTongueExists = _rewardDetails.Any(x =>
+            x.Name.Equals("Boon: Silver Tongue", StringComparison.OrdinalIgnoreCase));
+
+        if (silverTongueExists)
         {
-            UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
-
-            var silverTongue = _rewardDetails.FirstOrDefault(x =>
-                x.Name.Equals("Boon: Silver Tongue", StringComparison.OrdinalIgnoreCase) &&
-                x.Visibility == "VISIBLE" &&
-                x.CanBuy == "CAN BUY");
-
-            if (silverTongue.Name != null)
+            for (int attempt = 0; attempt < 5; attempt++) // Allow up to 5 scrolls
             {
-                // Buy "Silver Tongue"
-                await Mouse.SetCursorPosAndLeftClickAsync(silverTongue.Position, 750, Vector2.Zero);
-                await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
-                await Task.Delay(200); // Allow UI to update
+                UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
 
-                boughtSilverTongue = true;
-                break; // Exit the loop once purchased
-            }
+                var silverTongue = _rewardDetails.FirstOrDefault(x =>
+                    x.Name.Equals("Boon: Silver Tongue", StringComparison.OrdinalIgnoreCase) &&
+                    x.Visibility == "VISIBLE" &&
+                    x.CanBuy == "CAN BUY");
 
-            // If not found, scroll down to check more items
-            if (_downArrow != null)
-            {
-                await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                await Task.Delay(200); // Allow UI to refresh
-            }
-            else
-            {
-                break; // No more scrolls available
+                if (silverTongue.Name != null)
+                {
+                    // Buy "Silver Tongue"
+                    await Mouse.SetCursorPosAndLeftClickAsync(silverTongue.Position, 750, Vector2.Zero);
+                    await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
+                    await Task.Delay(200); // Allow UI to update
+
+                    boughtSilverTongue = true;
+                    break; // Exit loop once purchased
+                }
+
+                // If Silver Tongue is found in list but not visible, scroll down
+                if (_downArrow != null)
+                {
+                    await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+                    await Task.Delay(200); // Allow UI to refresh
+                }
+                else
+                {
+                    break; // No more scrolls available
+                }
             }
         }
 
         // If we bought Silver Tongue, stop and exit function
         if (boughtSilverTongue) return;
 
-        // 🛑 Step 2: Continue normal JSON-based Boon selection if Silver Tongue wasn't found
+        // Step 2: Continue normal JSON-based Boon selection if Silver Tongue wasn't found or bought
         bool boughtSomething = false;
 
         while (true)

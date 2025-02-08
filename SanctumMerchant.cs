@@ -124,62 +124,98 @@ namespace SanctumMerchant
         private string _stopReason = "";
 
         private async Task BuyBoonAsync()
+{
+    _stopReason = "";
+    Vector2 lastBoughtPosition = Vector2.Zero;
+    bool boughtSilverTongue = false;
+
+    while (Keyboard.IsKeyDown(Settings.PurchaseKey.Value))
+    {
+        // 🛑 Step 1: Search for "Boon: Silver Tongue" and buy it
+        for (int attempt = 0; attempt < 3; attempt++) // Allow up to 10 scrolls
         {
-            _stopReason = "";
-            Vector2 lastBoughtPosition = Vector2.Zero;
+            UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
 
-            while (Keyboard.IsKeyDown(Settings.PurchaseKey.Value))
+            var silverTongue = _rewardDetails.FirstOrDefault(x =>
+                x.Name.Equals("Boon: Silver Tongue", StringComparison.OrdinalIgnoreCase) &&
+                x.Visibility == "VISIBLE" &&
+                x.CanBuy == "CAN BUY");
 
+            if (silverTongue.Name != null)
             {
-                bool boughtSomething = false;
+                // Buy "Silver Tongue"
+                await Mouse.SetCursorPosAndLeftClickAsync(silverTongue.Position, 750, Vector2.Zero);
+                await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
+                await Task.Delay(200); // Allow UI to update
 
-                while (true)
-                {
-                    UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
-
-                    var matchingBoon = _rewardDetails.FirstOrDefault(x =>
-                        _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
-                        .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
-                        x.Visibility == "VISIBLE" &&
-                        x.CanBuy == "CAN BUY");
-
-                    if (matchingBoon.Name != null)
-                    {
-                        await Mouse.SetCursorPosAndLeftClickAsync(matchingBoon.Position, 750, Vector2.Zero);
-                        await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
-                        boughtSomething = true;
-
-                        await Task.Delay(125);
-                        lastBoughtPosition = matchingBoon.Position;
-                        continue;
-                    }
-                    break;
-                }
-
-                if (!boughtSomething) break;
-
-                UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
-
-                var nextBoon = _rewardDetails.FirstOrDefault(x =>
-                    _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
-                    .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
-                    x.CanBuy == "CAN BUY");
-
-                if (nextBoon.Name != null)
-                {
-                    if (_downArrow != null && nextBoon.Position.Y > lastBoughtPosition.Y)
-                    {
-                        await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                    }
-                    else if (_upArrow != null && nextBoon.Position.Y < lastBoughtPosition.Y)
-                    {
-                        await Mouse.SetCursorPosAndLeftClickAsync(_upArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                    }
-                }
+                boughtSilverTongue = true;
+                break; // Exit the loop once purchased
             }
 
-            _stopReason = !_rewardDetails.Any(x => x.CanBuy == "CAN BUY") ? "No Boons Available to Buy!" : "Finished Buying!";
+            // If not found, scroll down to check more items
+            if (_downArrow != null)
+            {
+                await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+                await Task.Delay(200); // Allow UI to refresh
+            }
+            else
+            {
+                break; // No more scrolls available
+            }
         }
+
+        // If we bought Silver Tongue, stop and exit function
+        if (boughtSilverTongue) return;
+
+        // 🛑 Step 2: Continue normal JSON-based Boon selection if Silver Tongue wasn't found
+        bool boughtSomething = false;
+
+        while (true)
+        {
+            UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
+
+            var matchingBoon = _rewardDetails.FirstOrDefault(x =>
+                _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
+                .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
+                x.Visibility == "VISIBLE" &&
+                x.CanBuy == "CAN BUY");
+
+            if (matchingBoon.Name != null)
+            {
+                await Mouse.SetCursorPosAndLeftClickAsync(matchingBoon.Position, 750, Vector2.Zero);
+                await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
+                boughtSomething = true;
+                await Task.Delay(125);
+                lastBoughtPosition = matchingBoon.Position;
+                continue;
+            }
+            break;
+        }
+
+        if (!boughtSomething) break;
+
+        UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
+
+        var nextBoon = _rewardDetails.FirstOrDefault(x =>
+            _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
+            .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
+            x.CanBuy == "CAN BUY");
+
+        if (nextBoon.Name != null)
+        {
+            if (_downArrow != null && nextBoon.Position.Y > lastBoughtPosition.Y)
+            {
+                await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+            }
+            else if (_upArrow != null && nextBoon.Position.Y < lastBoughtPosition.Y)
+            {
+                await Mouse.SetCursorPosAndLeftClickAsync(_upArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+            }
+        }
+    }
+
+    _stopReason = !_rewardDetails.Any(x => x.CanBuy == "CAN BUY") ? "No Boons Available to Buy!" : "Finished Buying!";
+}
 
 
         public override void Render()

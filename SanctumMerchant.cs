@@ -149,11 +149,11 @@ namespace SanctumMerchant
 
                     if (matchingBoon.Name != null)
                     {
-                        await Mouse.SetCursorPosAndLeftClickAsync(matchingBoon.Position, 1500, Vector2.Zero);
-                        await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
+                        await Mouse.SetCursorPosAndLeftClickAsync(matchingBoon.Position, 750, Vector2.Zero);
+                        await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 750, Vector2.Zero);
                         boughtSomething = true;
 
-                        await Task.Delay(250);
+                        await Task.Delay(125);
                         lastBoughtPosition = matchingBoon.Position;
                         continue;
                     }
@@ -213,6 +213,25 @@ namespace SanctumMerchant
                 Color textColor = visibility == "VISIBLE" ? Color.Lime : Color.Red;
                 Graphics.DrawText($"Reward: {name} - Cost: {cost} - {visibility} - {canBuy}", new Vector2(100, yOffset), textColor);
                 yOffset += 20;
+            }
+            
+            // Draw JSON Priority Data **Below Other Debug Info**
+            yOffset += 30;
+            Graphics.DrawText("Sanctum Priority Effects:", new Vector2(100, yOffset), Color.Orange);
+            yOffset += 20;
+
+            foreach (var priority in _jsonLoader.SanctumEffects)
+            {
+                Graphics.DrawText($"{priority.MenuName}:", new Vector2(100, yOffset), Color.Yellow);
+                yOffset += 20;
+
+                foreach (var effect in priority.Effects)
+                {
+                    Graphics.DrawText($"  - {effect.EffectName}", new Vector2(120, yOffset), Color.White);
+                    yOffset += 20;
+                }
+
+                yOffset += 10;
             }
 
             yOffset += 30;

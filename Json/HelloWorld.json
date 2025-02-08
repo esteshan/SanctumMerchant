@@ -3,130 +3,54 @@
     {
       "MenuName": "Priority 1",
       "Effects": [
-        {
-          "EffectName": "Silver Tongue"
-        }
+        { "EffectName": "Silver Tongue" }
       ]
     },
     {
       "MenuName": "Priority 2",
       "Effects": [
-        {
-          "EffectName": "Hare Foot"
-        },
-        {
-          "EffectName": "Ornate Dagger"
-        }
+        { "EffectName": "Hare Foot" },
+        { "EffectName": "Ornate Dagger" }
       ]
     },
     {
       "MenuName": "Priority 3",
       "Effects": [
-        {
-          "EffectName": "Fright Mask"
-        },
-        {
-          "EffectName": "Flooding Rivers"
-        },
-        {
-          "EffectName": "Reparations"
-        },
-        {
-          "EffectName": "Honoured Challenger"
-        },
-        {
-          "EffectName": "Scrying Crystal"
-        },
-        {
-          "EffectName": "Imperial Seal"
-        },
-        {
-          "EffectName": "Garukhan's Favour"
-        },
-        {
-          "EffectName": "Earned Honour"
-        },
-        {
-          "EffectName": "Ahkeli's Guard"
-        },
-        {
-          "EffectName": "Orbala's Leathers"
-        },
-        {
-          "EffectName": "Sekhema's Cloak"
-        },
-        {
-          "EffectName": "Dekhara's Necklace"
-        },
-        {
-          "EffectName": "Moment's Peace"
-        },
-        {
-          "EffectName": "Diverted River"
-        },
-        {
-          "EffectName": "Raincaller"
-        },
-        {
-          "EffectName": "All-Seeing Eye"
-        },
-        {
-          "EffectName": "Lustrous Pearl"
-        },
-        {
-          "EffectName": "Viscous Ichor"
-        },
-        {
-          "EffectName": "Wooden Effigy"
-        },
-        {
-          "EffectName": "Sanguine Vial"
-        },
-        {
-          "EffectName": "Assassin's Blade"
-        },
-        {
-          "EffectName": "Enchanted Urn"
-        },
-        {
-          "EffectName": "Adrenaline Vial"
-        },
-        {
-          "EffectName": "Mirror of Fortune"
-        },
-        {
-          "EffectName": "Orbala Statuette"
-        },
-        {
-          "EffectName": "Holy Water"
-        },
-        {
-          "EffectName": "Fountain of Youth"
-        },
-        {
-          "EffectName": "Silver Chalice"
-        },
-        {
-          "EffectName": "Black Pearl"
-        },
-        {
-          "EffectName": "Balbala's Gift"
-        },
-        {
-          "EffectName": "Chipped Dice"
-        },
-        {
-          "EffectName": "Upward Path"
-        },
-        {
-          "EffectName": "Sacred Mirror"
-        },
-        {
-          "EffectName": "Crystal Shard"
-        },
-        {
-          "EffectName": "Lustrous Lacquer"
-        }
+        { "EffectName": "Fright Mask" },
+        { "EffectName": "Flooding Rivers" },
+        { "EffectName": "Reparations" },
+        { "EffectName": "Honoured Challenger" },
+        { "EffectName": "Scrying Crystal" },
+        { "EffectName": "Imperial Seal" },
+        { "EffectName": "Garukhan's Favour" },
+        { "EffectName": "Earned Honour" },
+        { "EffectName": "Ahkeli's Guard" },
+        { "EffectName": "Orbala's Leathers" },
+        { "EffectName": "Sekhema's Cloak" },
+        { "EffectName": "Dekhara's Necklace" },
+        { "EffectName": "Moment's Peace" },
+        { "EffectName": "Diverted River" },
+        { "EffectName": "Raincaller" },
+        { "EffectName": "All-Seeing Eye" },
+        { "EffectName": "Lustrous Pearl" },
+        { "EffectName": "Viscous Ichor" },
+        { "EffectName": "Wooden Effigy" },
+        { "EffectName": "Sanguine Vial" },
+        { "EffectName": "Assassin's Blade" },
+        { "EffectName": "Enchanted Urn" },
+        { "EffectName": "Adrenaline Vial" },
+        { "EffectName": "Mirror of Fortune" },
+        { "EffectName": "Orbala Statuette" },
+        { "EffectName": "Holy Water" },
+        { "EffectName": "Fountain of Youth" },
+        { "EffectName": "Silver Chalice" },
+        { "EffectName": "Black Pearl" },
+        { "EffectName": "Balbala's Gift" },
+        { "EffectName": "Chipped Dice" },
+        { "EffectName": "Upward Path" },
+        { "EffectName": "Sacred Mirror" },
+        { "EffectName": "Crystal Shard" },
+        { "EffectName": "Lustrous Lacquer" }
       ]
     }
   ]

@@ -1,8 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Threading;
-// Use System.Numerics.Vector2
+using System.Threading.Tasks;
 
 namespace MyPlugin.Utils
 {
@@ -27,17 +26,11 @@ namespace MyPlugin.Utils
         private const int MOVEMENT_DELAY = 10;
         private const int CLICK_DELAY = 1;
 
-        /// <summary>
-        /// Sets the cursor position relative to the game window.
-        /// </summary>
         public static bool SetCursorPos(int x, int y, RectangleF gameWindow)
         {
             return SetCursorPos(x + (int)gameWindow.X, y + (int)gameWindow.Y);
         }
 
-        /// <summary>
-        /// Sets the cursor position to the center of a given rectangle relative to the game window
-        /// </summary>
         public static bool SetCursorPosToCenterOfRec(RectangleF position, RectangleF gameWindow)
         {
             return SetCursorPos((int)(gameWindow.X + position.X + position.Width / 2),
@@ -56,16 +49,12 @@ namespace MyPlugin.Utils
             }
         }
 
-        /// <summary>
-        /// Retrieves the cursor's position, in screen coordinates.
-        /// </summary>
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out POINT lpPoint);
 
         public static Point GetCursorPosition()
         {
-            POINT lpPoint;
-            GetCursorPos(out lpPoint);
+            GetCursorPos(out POINT lpPoint);
             return lpPoint;
         }
 
@@ -89,31 +78,25 @@ namespace MyPlugin.Utils
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
 
-        /// <summary>
-        /// Sets the cursor position and performs a left click.
-        /// </summary>
-        public static void SetCursorPosAndLeftClick(Vector2 pos, int extraDelay, Vector2 offset)
+        public static async Task SetCursorPosAndLeftClickAsync(Vector2 pos, int extraDelay, Vector2 offset)
         {
             var posX = (int)(pos.X + offset.X);
             var posY = (int)(pos.Y + offset.Y);
             SetCursorPos(posX, posY);
-            Thread.Sleep(MOVEMENT_DELAY + extraDelay);
-            LeftClick();
+            await Task.Delay(MOVEMENT_DELAY + extraDelay);
+            await LeftClickAsync();
         }
 
-        /// <summary>
-        /// Sets the cursor position and performs a right click.
-        /// </summary>
-        public static void SetCursorPosAndRightClick(Vector2 pos, int extraDelay, Vector2 offset)
+        public static async Task SetCursorPosAndRightClickAsync(Vector2 pos, int extraDelay, Vector2 offset)
         {
             var posX = (int)(pos.X + offset.X);
             var posY = (int)(pos.Y + offset.Y);
             SetCursorPos(posX, posY);
-            Thread.Sleep(MOVEMENT_DELAY + extraDelay);
-            RightClick();
+            await Task.Delay(MOVEMENT_DELAY + extraDelay);
+            await RightClickAsync();
         }
 
-        public static void VerticalScroll(bool forward, int clicks)
+        public static async Task VerticalScrollAsync(bool forward, int clicks)
         {
             if (forward)
             {
@@ -123,20 +106,22 @@ namespace MyPlugin.Utils
             {
                 mouse_event(MOUSE_EVENT_WHEEL, 0, 0, -(clicks * 120), 0);
             }
+            await Task.Delay(50); // Small delay for responsiveness
         }
 
-        public static void LeftClick()
+        public static async Task LeftClickAsync()
         {
             LeftMouseDown();
-            Thread.Sleep(CLICK_DELAY);
+            await Task.Delay(CLICK_DELAY);
             LeftMouseUp();
         }
 
-        public static void RightClick()
+        public static async Task RightClickAsync()
         {
             RightMouseDown();
-            Thread.Sleep(CLICK_DELAY);
+            await Task.Delay(CLICK_DELAY);
             RightMouseUp();
         }
     }
 }
+

@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     "net8.0-windows7.0": {
+      "ExileCore2CustomLogger/1.0.4": {
+        "type": "package",
+        "dependencies": {
+          "ImGui.NET": "1.90.0.1",
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "compile": {
+          "lib/net8.0/ExileCore2CustomLogger.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/ExileCore2CustomLogger.dll": {}
+        }
+      },
       "ImGui.NET/1.90.0.1": {
         "type": "package",
         "dependencies": {
@@ -86,76 +99,22 @@
           }
         }
       }
-    },
-    "net8.0-windows7.0/win-x64": {
-      "ImGui.NET/1.90.0.1": {
-        "type": "package",
-        "dependencies": {
-          "System.Buffers": "4.4.0",
-          "System.Numerics.Vectors": "4.4.0",
-          "System.Runtime.CompilerServices.Unsafe": "4.4.0"
-        },
-        "compile": {
-          "lib/net6.0/ImGui.NET.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/ImGui.NET.dll": {
-            "related": ".xml"
-          }
-        },
-        "native": {
-          "runtimes/win-x64/native/cimgui.dll": {}
-        }
-      },
-      "Newtonsoft.Json/13.0.3": {
-        "type": "package",
-        "compile": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Buffers/4.4.0": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
-      "System.Numerics.Vectors/4.4.0": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
-      "System.Runtime.CompilerServices.Unsafe/4.4.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll": {
-            "related": ".xml"
-          }
-        }
-      }
     }
   },
   "libraries": {
+    "ExileCore2CustomLogger/1.0.4": {
+      "sha512": "rWjuZ9w6UG1kiWKomr5oQ7CG0JmxZlnYnMXakMgVdpX6kdVPc1R2iV+9j68+HMFK2QW33mmayXKnARMMV2cPBA==",
+      "type": "package",
+      "path": "exilecore2customlogger/1.0.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "exilecore2customlogger.1.0.4.nupkg.sha512",
+        "exilecore2customlogger.nuspec",
+        "lib/net8.0/ExileCore2CustomLogger.dll"
+      ]
+    },
     "ImGui.NET/1.90.0.1": {
       "sha512": "ZhEN7SKx5e9bbWY5BR2tNdbl7W4cJXaESwFRGo6p2pUSM9Y8yxtWq2zM4Qf8a8HYCmblHuFWtp8YcZiWlcJ3ZQ==",
       "type": "package",
@@ -301,6 +260,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
+      "ExileCore2CustomLogger >= 1.0.4",
       "ImGui.NET >= 1.90.0.1",
       "Newtonsoft.Json >= 13.0.3"
     ]
@@ -347,6 +307,10 @@
       "net8.0-windows7.0": {
         "targetAlias": "net8.0-windows",
         "dependencies": {
+          "ExileCore2CustomLogger": {
+            "target": "Package",
+            "version": "[1.0.4, )"
+          },
           "ImGui.NET": {
             "target": "Package",
             "version": "[1.90.0.1, )"
@@ -376,11 +340,6 @@
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "win-x64": {
-        "#import": []
       }
     }
   }

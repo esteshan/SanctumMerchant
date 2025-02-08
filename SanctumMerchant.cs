@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExileCore2;
 using ExileCore2.PoEMemory;
@@ -42,17 +43,22 @@ namespace SanctumMerchant
             {
                 UpdateRewardElements(sanctumRewardWindow);
 
-                // Call the helper method to locate buttons
                 SanctumUiHelper.LocateButtons(sanctumRewardWindow, 
                     out _downArrow, 
                     out _upArrow, 
                     out _purchaseButton, 
                     out _closeButton);
 
-                // Only buy while F5 is held
+                // ✅ Press F5 to start buying
                 if (Keyboard.IsKeyDown(Keys.F5))
                 {
-                    BuyBoon(sanctumRewardWindow);
+                    _ = BuyBoonAsync();
+                }
+
+                // ✅ Press F6 to test scroll down button
+                if (Keyboard.IsKeyDown(Keys.F6))
+                {
+                    _ = ScrollDownTestAsync();
                 }
             }
         }
@@ -75,7 +81,6 @@ namespace SanctumMerchant
                                                      .Children.ElementAtOrDefault(0)?
                                                      .Children.ElementAtOrDefault(1);
 
-            // ✅ Fix: Remove commas before parsing
             string currencyText = currencyElement?.Text?.Replace(",", "").Trim();
             _currencyAmount = int.TryParse(currencyText, out int parsedCurrency) ? parsedCurrency : 0;
 
@@ -121,90 +126,88 @@ namespace SanctumMerchant
             }
         }
         
-        private string _stopReason = ""; // Holds the reason why the plugin stopped
+        private string _stopReason = "";
 
-        private void BuyBoon(Element sanctumRewardWindow)
-       {
-    _stopReason = ""; // Reset stop reason before starting
-
-    while (Keyboard.IsKeyDown(Keys.F5)) // Stop if F5 is released
-    {
-        // Refresh RewardElements dynamically after every buy
-        UpdateRewardElements(sanctumRewardWindow);
-
-        bool boughtSomething = false;
-
-        foreach (var priority in _jsonLoader.SanctumEffects)
+        private async Task BuyBoonAsync()
         {
-            foreach (var effect in priority.Effects)
+            _stopReason = "";
+            Vector2 lastBoughtPosition = Vector2.Zero;
+
+            while (Keyboard.IsKeyDown(Keys.F5))
             {
-                var matchingBoon = _rewardDetails.FirstOrDefault(x =>
-                    x.Name.Equals($"Boon: {effect.EffectName}", StringComparison.OrdinalIgnoreCase) &&
-                    x.Visibility == "VISIBLE" && 
+                bool boughtSomething = false;
+
+                while (true)
+                {
+                    UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
+
+                    var matchingBoon = _rewardDetails.FirstOrDefault(x =>
+                        _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
+                        .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
+                        x.Visibility == "VISIBLE" &&
+                        x.CanBuy == "CAN BUY");
+
+                    if (matchingBoon.Name != null)
+                    {
+                        await Mouse.SetCursorPosAndLeftClickAsync(matchingBoon.Position, 1500, Vector2.Zero);
+                        await Mouse.SetCursorPosAndLeftClickAsync(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
+                        boughtSomething = true;
+
+                        await Task.Delay(250);
+                        lastBoughtPosition = matchingBoon.Position;
+                        continue;
+                    }
+                    break;
+                }
+
+                if (!boughtSomething) break;
+
+                UpdateRewardElements(GameController.IngameState.IngameUi.SanctumRewardWindow);
+
+                var nextBoon = _rewardDetails.FirstOrDefault(x =>
+                    _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
+                    .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
                     x.CanBuy == "CAN BUY");
 
-                if (matchingBoon.Name != null)
+                if (nextBoon.Name != null)
                 {
-                    Mouse.SetCursorPosAndLeftClick(matchingBoon.Position, 1500, Vector2.Zero);
-                    Mouse.SetCursorPosAndLeftClick(_purchaseButton.GetClientRectCache.Center, 1500, Vector2.Zero);
-                    boughtSomething = true;
-                    _stopReason = "Buying in Progress..."; // Keep resetting if still purchasing
-                    break; // Stop checking once an item is bought
+                    if (_downArrow != null && nextBoon.Position.Y > lastBoughtPosition.Y)
+                    {
+                        await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+                    }
+                    else if (_upArrow != null && nextBoon.Position.Y < lastBoughtPosition.Y)
+                    {
+                        await Mouse.SetCursorPosAndLeftClickAsync(_upArrow.GetClientRectCache.Center, 50, Vector2.Zero);
+                    }
                 }
             }
 
-            if (boughtSomething)
-                break; // Move out of priority loop if an item was bought
+            _stopReason = !_rewardDetails.Any(x => x.CanBuy == "CAN BUY") ? "No Boons Available to Buy!" : "Finished Buying!";
         }
 
-        // If nothing from the JSON was bought, check why and set a stop message
-        if (!boughtSomething)
+        private async Task ScrollDownTestAsync()
         {
-            bool anyBuyableBoon = _rewardDetails.Any(x =>
-                _jsonLoader.SanctumEffects.SelectMany(p => p.Effects)
-                .Any(e => x.Name.Equals($"Boon: {e.EffectName}", StringComparison.OrdinalIgnoreCase)) &&
-                x.CanBuy == "CAN BUY");
-
-            if (anyBuyableBoon && _downArrow != null)
+            if (_downArrow != null)
             {
-                Mouse.SetCursorPosAndLeftClick(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
-                System.Threading.Thread.Sleep(300);
-                continue; // Continue scrolling as long as F5 is held
-            }
-
-            if (!anyBuyableBoon)
-            {
-                _stopReason = "No Boons Available to Buy!";
-            }
-            else if (_currencyAmount == 0)
-            {
-                _stopReason = "Not Enough Currency!";
+                DebugWindow.LogMsg("[SanctumMerchant] F6 Pressed - Clicking Scroll Down Button.");
+                await Mouse.SetCursorPosAndLeftClickAsync(_downArrow.GetClientRectCache.Center, 50, Vector2.Zero);
             }
             else
             {
-                _stopReason = "Finished Buying!";
+                DebugWindow.LogMsg("[SanctumMerchant] No Scroll Down Button Found!");
             }
-
-            break; // Stop buying if no more buyable boons
         }
-    }
-       }
 
         public override void Render()
         {
             if (!Settings.Debug.Value) return;
 
             int yOffset = 180;
-
-            // Draw Currency Amount
             Graphics.DrawText($"Currency: {_currencyAmount}", new Vector2(100, yOffset), Color.Cyan);
             yOffset += 20;
-
-            // Draw Scroll Offset
             Graphics.DrawText($"Scroll Offset: {_scrollOffset}", new Vector2(100, yOffset), Color.Yellow);
             yOffset += 20;
 
-            // Draw Reward List
             foreach (var (name, cost, position, visibility, canBuy, warning) in _rewardDetails)
             {
                 Color textColor = visibility == "VISIBLE" ? Color.Lime : Color.Red;
@@ -212,26 +215,6 @@ namespace SanctumMerchant
                 yOffset += 20;
             }
 
-            // Draw JSON Priority Data **Below Other Debug Info**
-            yOffset += 30;
-            Graphics.DrawText("Sanctum Priority Effects:", new Vector2(100, yOffset), Color.Orange);
-            yOffset += 20;
-
-            foreach (var priority in _jsonLoader.SanctumEffects)
-            {
-                Graphics.DrawText($"{priority.MenuName}:", new Vector2(100, yOffset), Color.Yellow);
-                yOffset += 20;
-
-                foreach (var effect in priority.Effects)
-                {
-                    Graphics.DrawText($"  - {effect.EffectName}", new Vector2(120, yOffset), Color.White);
-                    yOffset += 20;
-                }
-
-                yOffset += 10;
-            }
-
-            // Draw Stop Reason Below Everything
             yOffset += 30;
             Graphics.DrawText($"Status: {_stopReason}", new Vector2(100, yOffset), Color.Red);
         }

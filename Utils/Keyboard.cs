@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MyPlugin.Utils
@@ -18,7 +18,6 @@ namespace MyPlugin.Utils
         [DllImport("user32.dll")]
         private static extern short GetKeyState(int nVirtKey);
 
-
         public static void KeyDown(Keys key)
         {
             keybd_event((byte)key, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
@@ -29,10 +28,10 @@ namespace MyPlugin.Utils
             keybd_event((byte)key, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
         }
 
-        public static void KeyPress(Keys key)
+        public static async Task KeyPressAsync(Keys key)
         {
             KeyDown(key);
-            Thread.Sleep(Constants.CLICK_DELAY);
+            await Task.Delay(Constants.CLICK_DELAY);
             KeyUp(key);
         }
 
@@ -45,7 +44,6 @@ namespace MyPlugin.Utils
         {
             return Convert.ToBoolean(GetKeyState((int)key) & KEY_PRESSED);
         }
-
 
         public static bool IsKeyToggled(Keys key)
         {

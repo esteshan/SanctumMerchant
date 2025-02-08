@@ -43,6 +43,10 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "dependencies": {
+            "ExileCore2CustomLogger": {
+              "target": "Package",
+              "version": "[1.0.4, )"
+            },
             "ImGui.NET": {
               "target": "Package",
               "version": "[1.90.0.1, )"
@@ -72,11 +76,6 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
         }
       }
     }

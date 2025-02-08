@@ -49,8 +49,8 @@ namespace SanctumMerchant
                     out _purchaseButton, 
                     out _closeButton);
 
-                // ✅ Press F5 to start buying
-                if (Keyboard.IsKeyDown(Keys.F5))
+                
+                if (Keyboard.IsKeyDown(Settings.PurchaseKey.Value))
                 {
                     _ = BuyBoonAsync();
                 }
@@ -128,7 +128,8 @@ namespace SanctumMerchant
             _stopReason = "";
             Vector2 lastBoughtPosition = Vector2.Zero;
 
-            while (Keyboard.IsKeyDown(Keys.F5))
+            while (Keyboard.IsKeyDown(Settings.PurchaseKey.Value))
+
             {
                 bool boughtSomething = false;
 
@@ -184,7 +185,6 @@ namespace SanctumMerchant
         public override void Render()
         {
             if (!Settings.Debug.Value) return;
-
             int yOffset = 180;
             Graphics.DrawText($"Currency: {_currencyAmount}", new Vector2(100, yOffset), Color.Cyan);
             yOffset += 20;
@@ -198,7 +198,6 @@ namespace SanctumMerchant
                 yOffset += 20;
             }
             
-            // Draw JSON Priority Data **Below Other Debug Info**
             yOffset += 30;
             Graphics.DrawText("Sanctum Priority Effects:", new Vector2(100, yOffset), Color.Orange);
             yOffset += 20;
